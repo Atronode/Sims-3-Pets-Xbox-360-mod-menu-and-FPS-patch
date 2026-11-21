@@ -83,6 +83,7 @@ On 13 November 2026, after testers hit "Graphics device lost", both renderers we
 
 - **The game's own bugs.** The Sims 3 Pets was buggy even on a real Xbox 360, and those bugs are still there. Some problems may remain that neither Xenia nor this project causes. If you find one, please [report it](#suggestions-and-bug-reports).
 - **TVs sometimes freeze.** Sometimes a TV plays no sound, and its picture can freeze. This happens on a real Xbox 360 too, so it's a bug in the game itself, not in Xenia or this project.
+- **Broken household pictures.** The family picture on the save menu and in household creation can come out broken: instead of the Sims, it shows speckled green outlines of them with black patches. It may have started with the recent fixes, possibly linked to the outfit damage, but the cause hasn't been found yet and it isn't fixed.
 - **No shadows under Sims and pets indoors.** On the real console, Sims and pets have a soft shadow under them. Xenia's Vulkan renderer doesn't draw it, and Direct3D 12 draws a misplaced blob for pets instead. The `fsi` render path and the `depth_float24_convert_in_pixel_shader` and `depth_float24_round` settings were tried and none brought it back. This is the next bug I aim to fix; see [What's next](#whats-next).
 
 ### Related reports
