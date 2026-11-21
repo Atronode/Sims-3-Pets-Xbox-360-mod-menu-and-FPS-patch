@@ -83,7 +83,7 @@ On 13 November 2026, after testers hit "Graphics device lost", both renderers we
 
 - **The game's own bugs.** The Sims 3 Pets was buggy even on a real Xbox 360, and those bugs are still there. Some problems may remain that neither Xenia nor this project causes. If you find one, please [report it](#suggestions-and-bug-reports).
 - **TVs sometimes freeze.** Sometimes a TV plays no sound, and its picture can freeze. This happens on a real Xbox 360 too, so it's a bug in the game itself, not in Xenia or this project.
-- **No shadows under Sims and pets indoors.** On the real console, Sims and pets have a soft shadow under them. Xenia's Vulkan renderer doesn't draw it, and Direct3D 12 draws a misplaced blob for pets instead. The `fsi` render path and the `depth_float24_convert_in_pixel_shader` and `depth_float24_round` settings were tried and none brought it back, so it needs a fix in Xenia itself.
+- **No shadows under Sims and pets indoors.** On the real console, Sims and pets have a soft shadow under them. Xenia's Vulkan renderer doesn't draw it, and Direct3D 12 draws a misplaced blob for pets instead. The `fsi` render path and the `depth_float24_convert_in_pixel_shader` and `depth_float24_round` settings were tried and none brought it back. This is the next bug I aim to fix; see [What's next](#whats-next).
 
 ### Related reports
 
@@ -363,6 +363,14 @@ All testing used copies of the saves.
 ### How it works
 
 The launcher starts Xenia, waits for the game to load its script code, then writes small changes into the game's memory. It also starts the FPS counter and the Smart screen copies helper when they're switched on; both run hidden and close with the game. Before changing anything, it checks each location against a SHA-256 hash, and if your copy doesn't match, it leaves the game alone. The game reloads its script code when you go back to the main menu, so the launcher keeps checking while you play and writes the changes again whenever they disappear. Nothing on disk changes: your game file, Xenia and your saves stay as they are.
+
+## What's next
+
+The next bug I aim to fix is the missing shadows under Sims and pets indoors. On a real Xbox 360, Sims and pets indoors have a soft shadow under them. Xenia's Vulkan renderer doesn't draw that shadow at all. Direct3D 12 draws a hard dark blob in front of a pet's head instead, which jumps around as the pet moves.
+
+Xenia's settings alone haven't brought it back. The more accurate `fsi` render path and the `depth_float24_convert_in_pixel_shader` and `depth_float24_round` settings were all tried. The plan is the same one that fixed the [outfits](#sims-outfits): record what the game asks the graphics card to draw for the shadow, and find where Xenia does something different from the console. Then fix it in the game's own code if possible, as with Pets look right and the outfit fix, or take the fix to the Xenia project.
+
+If you know anything about these shadows, or see them drawn wrong somewhere else, a [report](#suggestions-and-bug-reports) would help.
 
 ## Suggestions and bug reports
 
