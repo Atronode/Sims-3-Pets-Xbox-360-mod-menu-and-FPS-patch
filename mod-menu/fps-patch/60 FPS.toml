@@ -1,0 +1,33 @@
+title_name = "The Sims™ 3 Pets"
+title_id = "45410962" # EA-2402
+hash = "DF7B98E763E34184" # Sims3.xex
+
+[[patch]]
+    name = "60 FPS"
+    desc = "Shows a new frame on every screen refresh instead of every second one. The game can only reach 60 if your PC keeps up."
+    author = "Atronode"
+    is_enabled = true
+
+    [[patch.be8]]
+        address = 0x8911fd53
+        value = 0x01
+
+[[patch]]
+    name = "Unlocked FPS"
+    desc = "Doesn't wait for the screen refresh at all, so the frame rate is limited only by your PC. Can tear. Turn off 60 FPS if you turn this on."
+    author = "Atronode"
+    is_enabled = false
+
+    [[patch.be8]]
+        address = 0x8911fd53
+        value = 0x00
+
+[[patch]]
+    name = "Late frames don't wait"
+    desc = "When a frame isn't ready in time for a screen refresh, show it as soon as it is instead of waiting for the next refresh. Stops the frame rate dropping straight from 60 to 30 when the game is just a little too busy."
+    author = "Atronode"
+    is_enabled = true
+
+    [[patch.be32]]
+        address = 0x8911fd68
+        value = 0x39400064

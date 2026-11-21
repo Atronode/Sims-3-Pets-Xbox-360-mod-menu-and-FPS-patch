@@ -39,6 +39,17 @@ public static class ModLoader {
   static bool Same(byte[] a, byte[] b) { if (a == null || b == null || a.Length != b.Length) return false; for (int i = 0; i < a.Length; i++) if (a[i] != b[i]) return false; return true; }
   static string Sha(byte[] b) { if (b == null) return ""; using (var s = SHA256.Create()) return BitConverter.ToString(s.ComputeHash(b)).Replace("-", "").ToLowerInvariant(); }
   public static byte[] Hex(string s) { var d = new byte[s.Length / 2]; for (int i = 0; i < d.Length; i++) d[i] = Convert.ToByte(s.Substring(i * 2, 2), 16); return d; }
+  // Xenia maps the console's 4 GB address space at a power-of-two address in its own process, usually 1 << 32 but not
+  // always. Find it by the "MZ" header of a loaded game module (Sims3.xex at 0x88000000, or default.xex at 0x82000000).
+  public static ulong GuestBase() {
+    var b = new byte[2]; IntPtr g;
+    for (int k = 32; k <= 46; k++) {
+      ulong guest = 1UL << k;
+      if (ReadProcessMemory(H, guest + 0x88000000UL, b, (IntPtr)2, out g) && b[0] == 0x4D && b[1] == 0x5A) return guest;
+      if (ReadProcessMemory(H, guest + 0x82000000UL, b, (IntPtr)2, out g) && b[0] == 0x4D && b[1] == 0x5A) return guest;
+    }
+    return 0;
+  }
   public static List<ulong> FindImages(string probeHash, int probeLen, int probeOff, ulong lo, ulong hi) {
     var found = new List<ulong>(); var buf = new byte[32 * 1024 * 1024]; ulong a = lo;
     while (a < hi) {
@@ -84,14 +95,50 @@ if ($Attach) {
   if (-not (Test-Path -LiteralPath $exe)) { Stop-WithMessage "Could not find Xenia at: $exe`nPut this folder next to your xenia folder." }
   if (-not $Iso -or -not (Test-Path -LiteralPath $Iso)) { Stop-WithMessage "Could not find the game. Put your Sims 3 Pets .iso next to this folder (its name must include Sims, 3 and Pets)." }
   if (Get-Process xenia_canary -ErrorAction SilentlyContinue) { Stop-WithMessage 'Xenia is already open. Close it first, then run this again.' }
+  # If Smart screen copies is switched on, keep it the same version as this folder's copy (older versions could store
+  # broken pictures in saves). It is only ever updated here; switching it on or off stays with the FPS Patch .bat.
+  try {
+    $smartSrc = Join-Path $here 'fps-patch\Smart screen copies.toml'
+    $smartDst = Join-Path $XeniaDir 'patches\45410962 - Smart screen copies.patch.toml'
+    if ((Test-Path -LiteralPath $smartDst) -and (Test-Path -LiteralPath $smartSrc) -and
+        (Get-FileHash -LiteralPath $smartDst).Hash -ne (Get-FileHash -LiteralPath $smartSrc).Hash) {
+      Copy-Item -LiteralPath $smartSrc -Destination $smartDst -Force
+      Say 'Smart screen copies were updated to the version in this folder.'
+    }
+  } catch { Say 'Smart screen copies could not be updated; the installed version is used.' }
   Say 'Starting The Sims 3 Pets...'
   $proc = Start-Process -FilePath $exe -WorkingDirectory $XeniaDir -ArgumentList ("`"$Iso`" " + $ExtraArgs) -PassThru
 }
 [ModLoader]::Open($proc.Id)
+# The FPS counter is switched on and off in "Sims 3 Pets FPS Patch.bat". Whatever happens to it, the mod menu still loads.
+try {
+  $counter = Join-Path $here 'FpsCounter.ps1'
+  if ((Test-Path -LiteralPath (Join-Path $here 'fps-patch\fps-counter-on.txt')) -and (Test-Path -LiteralPath $counter)) {
+    $winPs = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    Start-Process -FilePath $winPs -WindowStyle Hidden -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$counter`" -ProcessId $($proc.Id)" | Out-Null
+    Say 'FPS counter on: it shows in the top-left corner of the game.'
+  }
+} catch { Say 'The FPS counter could not start. The mod menu still works.' }
+# Smart screen copies, switched on and off in "Sims 3 Pets FPS Patch.bat". The helper only acts when that patch is
+# installed and the game asks it to; it closes with the game. Without it, Xenia's own settings apply.
+try {
+  $helper = Join-Path $here 'SmartReadback.ps1'
+  if (Test-Path -LiteralPath $helper) {
+    $winPs = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $helperArgs = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$helper`" -ProcessId $($proc.Id)"
+    if ($env:SIMS3_HELPER_LOG) { $helperArgs += " -Log `"$env:SIMS3_HELPER_LOG`"" }
+    if (Test-Path -LiteralPath (Join-Path $here 'fps-patch\pet-fix-on.txt')) { $helperArgs += ' -PetFix' }
+    Start-Process -FilePath $winPs -WindowStyle Hidden -ArgumentList $helperArgs | Out-Null
+    if (Test-Path -LiteralPath (Join-Path $XeniaDir 'patches\45410962 - Smart screen copies.patch.toml')) {
+      Say 'Smart screen copies on: the game runs faster and portraits still come out right.'
+    }
+  }
+} catch { Say 'Smart screen copies could not start. The game uses Xenia''s own settings.' }
 Say 'Waiting for the game to load. Leave this window open while you play.'
 
-# The game's code has always landed in this part of memory; the wider search is only a fallback.
-$likelyLo = [uint64]0x1A0000000; $likelyHi = [uint64]0x1C0000000; $allLo = [uint64]0x100000000; $allHi = [uint64]0x200000000
+# The game's script code has always landed in console memory 0xA0000000-0xBFFFFFFF; the whole 4 GB is only a fallback.
+# Both are offset by where Xenia put console memory in its process, found once the game's module has loaded.
+$guest = [uint64]0
 $started = Get-Date
 $known = @{}
 $installed = $false
@@ -107,10 +154,12 @@ while (-not $proc.HasExited) {
   }
   # Look for copies not seen yet: every 3 seconds until the first install, then once a minute.
   $now = Get-Date
-  if (($now - $lastScan).TotalSeconds -ge $(if ($installed) { 60 } else { 3 })) {
+  if ($guest -eq 0) { $guest = [ModLoader]::GuestBase() }
+  if ($guest -ne 0 -and ($now - $lastScan).TotalSeconds -ge $(if ($installed) { 60 } else { 3 })) {
     $lastScan = $now
-    $lo = $likelyLo; $hi = $likelyHi
-    if (-not $installed -and ($now - $started).TotalSeconds -gt 180) { $lo = $allLo; $hi = $allHi }
+    # 2684354560 = 0xA0000000, 3221225472 = 0xC0000000, 4294967296 = 4 GB (decimal, so PowerShell keeps them positive)
+    $lo = $guest + [uint64]2684354560; $hi = $guest + [uint64]3221225472
+    if (-not $installed -and ($now - $started).TotalSeconds -gt 180) { $lo = $guest; $hi = $guest + [uint64]4294967296 }
     foreach ($image in [ModLoader]::FindImages($spec.probeSha256, [int]$spec.probeLen, [int]$spec.probeOff, $lo, $hi)) {
       if ($known.ContainsKey($image)) { continue }
       $state = [ModLoader]::Check($image, $patches)

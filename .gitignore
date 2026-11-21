@@ -4,3 +4,6 @@
 *.dll
 *.gpd
 content/
+# Each player's FPS counter and Pet safe mode switches (set by the FPS Patch .bat).
+mod-menu/fps-patch/fps-counter-on.txt
+mod-menu/fps-patch/pet-fix-on.txt
