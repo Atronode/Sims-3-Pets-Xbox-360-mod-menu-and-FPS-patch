@@ -8,6 +8,16 @@ This project aims to be the definitive way to play **The Sims 3 Pets** for Xbox 
 
 You need your own copy of the game. No game files are included here.
 
+Suggestions and bug fixes are welcome: see [Suggestions and bug reports](#suggestions-and-bug-reports).
+
+## Why this exists
+
+The Sims 3 Pets on the Xbox 360 is one of my childhood games, and this project is a passion project. Coming back to it years later, I was saddened to find it was borderline unplayable in Xenia. Portraits turned into garbled squares. The game crashed, or lost the graphics device and closed. It crawled along at 12 to 15 frames per second on a modern PC. Pets fell apart into spikes and stretched meshes, and Sims came out of Create a Sim with patches of other textures in their clothes.
+
+So I set out to fix it, for myself and for anyone else who grew up with it. Each fix here was traced to its cause and tested on copies of real saves before it went in, and the reasons are written down below. The mod menu adds the freedom to play any household, edit any Sim and shape the town however you like.
+
+— Atronode
+
 ## Quick start
 
 1. Apply the [Xenia fixes](#fix-the-crashes-garbled-textures-and-stray-shadows).
@@ -71,6 +81,7 @@ On 13 November 2026, after testers hit "Graphics device lost", both renderers we
 
 ### Known issues
 
+- **The game's own bugs.** The Sims 3 Pets was buggy even on a real Xbox 360, and those bugs are still there. Some problems may remain that neither Xenia nor this project causes. If you find one, please [report it](#suggestions-and-bug-reports).
 - **No shadows under Sims and pets indoors.** On the real console, Sims and pets have a soft shadow under them. Xenia's Vulkan renderer doesn't draw it, and Direct3D 12 draws a misplaced blob for pets instead. The `fsi` render path and the `depth_float24_convert_in_pixel_shader` and `depth_float24_round` settings were tried and none brought it back, so it needs a fix in Xenia itself.
 
 ### Related reports
@@ -352,6 +363,19 @@ All testing used copies of the saves.
 
 The launcher starts Xenia, waits for the game to load its script code, then writes small changes into the game's memory. It also starts the FPS counter and the Smart screen copies helper when they're switched on; both run hidden and close with the game. Before changing anything, it checks each location against a SHA-256 hash, and if your copy doesn't match, it leaves the game alone. The game reloads its script code when you go back to the main menu, so the launcher keeps checking while you play and writes the changes again whenever they disappear. Nothing on disk changes: your game file, Xenia and your saves stay as they are.
 
+## Suggestions and bug reports
+
+Suggestions, bug reports and fixes are all welcome. Open an [issue](https://github.com/Atronode/Sims-3-Pets-Xbox-360-mod-menu-and-FPS-patch/issues) for a bug or an idea, or a [pull request](https://github.com/Atronode/Sims-3-Pets-Xbox-360-mod-menu-and-FPS-patch/pulls) if you've fixed something yourself.
+
+Some issues may still exist. The Sims 3 Pets was always buggy, even on original hardware, so not every glitch comes from Xenia or from this project. If you still have the game on an Xbox 360, checking whether a bug happens there too is the quickest way to tell a game bug from an emulation one.
+
+A bug report helps most when it says:
+
+- what you were doing when it happened, and whether it happens again;
+- which Xenia build you use, and whether you applied the settings above;
+- which of the 60 FPS patch, Smart screen copies and Pet safe mode were on;
+- your graphics card, plus a screenshot if you can.
+
 ## How this was made
 
 The mod menu was made with [Claude Code](https://claude.com/claude-code), Anthropic's AI coding agent, running Claude Opus 5.5, with Atronode directing the work and playing the results. Claude Code handled the workflow:
@@ -362,6 +386,7 @@ The mod menu was made with [Claude Code](https://claude.com/claude-code), Anthro
 4. Researched and tested the Xenia crash and texture fixes above, including the Direct3D 12 and Vulkan comparison.
 5. Found the game's 30 FPS limit in its PowerPC code, then counted calls at every screen-copy call site with temporary probe patches to build Smart screen copies. The assembler and generator are in [`tools`](tools).
 6. Traced the pet glitches by watching which memory pages the running game wrote while pets were drawn, then followed the game's pet fur buffers through its allocators and its memory tidier to build Pets look right. It was checked with crowd tests on copies of the saves, against an unpatched control.
+7. Traced patchy Sim outfits to a readback race in Xenia's Vulkan renderer by pausing the game after each copy and reading its memory, then worked around it in Smart screen copies. It was checked with repeated Create a Sim tests, against the previous version.
 
 ## Notes
 
