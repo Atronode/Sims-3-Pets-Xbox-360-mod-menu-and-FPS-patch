@@ -474,7 +474,7 @@ hash = "DF7B98E763E34184" # Sims3.xex
         value = 0x900B7764
     [[patch.be32]]
         address = 0x894809F4
-        value = 0x48000418
+        value = 0x48000424
     [[patch.be32]]
         address = 0x886CFD60
         value = 0x48DB0C35
@@ -1020,10 +1020,163 @@ hash = "DF7B98E763E34184" # Sims3.xex
         value = 0x900B7764
     [[patch.be32]]
         address = 0x89480CB0
-        value = 0x4800015C
+        value = 0x48000168
     [[patch.be32]]
         address = 0x89137558
         value = 0x483496F9
+    [[patch.be32]]
+        address = 0x89480F00
+        value = 0x3D608959
+    [[patch.be32]]
+        address = 0x89480F04
+        value = 0x818B77AC
+    [[patch.be32]]
+        address = 0x89480F08
+        value = 0x398C0001
+    [[patch.be32]]
+        address = 0x89480F0C
+        value = 0x918B77AC
+    [[patch.be32]]
+        address = 0x89480F10
+        value = 0x3800000D
+    [[patch.be32]]
+        address = 0x89480F14
+        value = 0x900B7774
+    [[patch.be32]]
+        address = 0x89480F18
+        value = 0x48000058
+    [[patch.be32]]
+        address = 0x88E4B714
+        value = 0x486357ED
+    [[patch.be32]]
+        address = 0x89480F1C
+        value = 0x3D608959
+    [[patch.be32]]
+        address = 0x89480F20
+        value = 0x818B77B0
+    [[patch.be32]]
+        address = 0x89480F24
+        value = 0x398C0001
+    [[patch.be32]]
+        address = 0x89480F28
+        value = 0x918B77B0
+    [[patch.be32]]
+        address = 0x89480F2C
+        value = 0x3800000E
+    [[patch.be32]]
+        address = 0x89480F30
+        value = 0x900B7774
+    [[patch.be32]]
+        address = 0x89480F34
+        value = 0x4800003C
+    [[patch.be32]]
+        address = 0x8885F09C
+        value = 0x48C21E81
+    [[patch.be32]]
+        address = 0x89480F38
+        value = 0x3D608959
+    [[patch.be32]]
+        address = 0x89480F3C
+        value = 0x818B77B4
+    [[patch.be32]]
+        address = 0x89480F40
+        value = 0x398C0001
+    [[patch.be32]]
+        address = 0x89480F44
+        value = 0x918B77B4
+    [[patch.be32]]
+        address = 0x89480F48
+        value = 0x3800000F
+    [[patch.be32]]
+        address = 0x89480F4C
+        value = 0x900B7774
+    [[patch.be32]]
+        address = 0x89480F50
+        value = 0x48000020
+    [[patch.be32]]
+        address = 0x8885F0BC
+        value = 0x48C21E7D
+    [[patch.be32]]
+        address = 0x89480F54
+        value = 0x3D608959
+    [[patch.be32]]
+        address = 0x89480F58
+        value = 0x818B77B8
+    [[patch.be32]]
+        address = 0x89480F5C
+        value = 0x398C0001
+    [[patch.be32]]
+        address = 0x89480F60
+        value = 0x918B77B8
+    [[patch.be32]]
+        address = 0x89480F64
+        value = 0x38000010
+    [[patch.be32]]
+        address = 0x89480F68
+        value = 0x900B7774
+    [[patch.be32]]
+        address = 0x89480F6C
+        value = 0x48000004
+    [[patch.be32]]
+        address = 0x8885F294
+        value = 0x48C21CC1
+    [[patch.be32]]
+        address = 0x89480F70
+        value = 0x818B7764
+    [[patch.be32]]
+        address = 0x89480F74
+        value = 0x2C0C0000
+    [[patch.be32]]
+        address = 0x89480F78
+        value = 0x41820040
+    [[patch.be32]]
+        address = 0x89480F7C
+        value = 0x818B7768
+    [[patch.be32]]
+        address = 0x89480F80
+        value = 0x398C0001
+    [[patch.be32]]
+        address = 0x89480F84
+        value = 0x918B7768
+    [[patch.be32]]
+        address = 0x89480F88
+        value = 0x3C004000
+    [[patch.be32]]
+        address = 0x89480F8C
+        value = 0x7C0903A6
+    [[patch.be32]]
+        address = 0x89480F90
+        value = 0x800B776C
+    [[patch.be32]]
+        address = 0x89480F94
+        value = 0x7C0C0050
+    [[patch.be32]]
+        address = 0x89480F98
+        value = 0x2C000000
+    [[patch.be32]]
+        address = 0x89480F9C
+        value = 0x4080001C
+    [[patch.be32]]
+        address = 0x89480FA0
+        value = 0x4200FFF0
+    [[patch.be32]]
+        address = 0x89480FA4
+        value = 0x818B7770
+    [[patch.be32]]
+        address = 0x89480FA8
+        value = 0x398C0001
+    [[patch.be32]]
+        address = 0x89480FAC
+        value = 0x918B7770
+    [[patch.be32]]
+        address = 0x89480FB0
+        value = 0x38000000
+    [[patch.be32]]
+        address = 0x89480FB4
+        value = 0x900B7764
+    [[patch.be32]]
+        address = 0x89480FB8
+        value = 0x4BFFFE54
     [[patch.be32]]
         address = 0x89480E00
         value = 0x3D808843
@@ -1032,141 +1185,150 @@ hash = "DF7B98E763E34184" # Sims3.xex
         value = 0x398CE2C0
     [[patch.be32]]
         address = 0x89480E08
-        value = 0x4800000C
+        value = 0x48000018
     [[patch.be32]]
         address = 0x89480E0C
-        value = 0x3D808913
+        value = 0x3D808843
     [[patch.be32]]
         address = 0x89480E10
-        value = 0x398CBC30
+        value = 0x398CE408
     [[patch.be32]]
         address = 0x89480E14
-        value = 0x7C0802A6
+        value = 0x4800000C
     [[patch.be32]]
         address = 0x89480E18
-        value = 0x9421FF30
+        value = 0x3D808913
     [[patch.be32]]
         address = 0x89480E1C
-        value = 0xF80100B0
+        value = 0x398CBC30
     [[patch.be32]]
         address = 0x89480E20
-        value = 0x918100C0
+        value = 0x7C0802A6
     [[patch.be32]]
         address = 0x89480E24
-        value = 0xD82100B8
+        value = 0x9421FF30
     [[patch.be32]]
         address = 0x89480E28
-        value = 0xF8610070
+        value = 0xF80100B0
     [[patch.be32]]
         address = 0x89480E2C
-        value = 0xF8810078
+        value = 0x918100C0
     [[patch.be32]]
         address = 0x89480E30
-        value = 0xF8A10080
+        value = 0xD82100B8
     [[patch.be32]]
         address = 0x89480E34
-        value = 0xF8C10088
+        value = 0xF8610070
     [[patch.be32]]
         address = 0x89480E38
-        value = 0xF8E10090
+        value = 0xF8810078
     [[patch.be32]]
         address = 0x89480E3C
-        value = 0xF9010098
+        value = 0xF8A10080
     [[patch.be32]]
         address = 0x89480E40
-        value = 0xF92100A0
+        value = 0xF8C10088
     [[patch.be32]]
         address = 0x89480E44
-        value = 0xF94100A8
+        value = 0xF8E10090
     [[patch.be32]]
         address = 0x89480E48
-        value = 0x81610124
+        value = 0xF9010098
     [[patch.be32]]
         address = 0x89480E4C
-        value = 0x91610054
+        value = 0xF92100A0
     [[patch.be32]]
         address = 0x89480E50
-        value = 0x81610128
+        value = 0xF94100A8
     [[patch.be32]]
         address = 0x89480E54
-        value = 0x91610058
+        value = 0x81610124
     [[patch.be32]]
         address = 0x89480E58
-        value = 0x8161012C
+        value = 0x91610054
     [[patch.be32]]
         address = 0x89480E5C
-        value = 0x9161005C
+        value = 0x81610128
     [[patch.be32]]
         address = 0x89480E60
-        value = 0x81610130
+        value = 0x91610058
     [[patch.be32]]
         address = 0x89480E64
-        value = 0x91610060
+        value = 0x8161012C
     [[patch.be32]]
         address = 0x89480E68
-        value = 0x81610134
+        value = 0x9161005C
     [[patch.be32]]
         address = 0x89480E6C
-        value = 0x91610064
+        value = 0x81610130
     [[patch.be32]]
         address = 0x89480E70
-        value = 0x81610138
+        value = 0x91610060
     [[patch.be32]]
         address = 0x89480E74
-        value = 0x91610068
+        value = 0x81610134
     [[patch.be32]]
         address = 0x89480E78
-        value = 0x818100C0
+        value = 0x91610064
     [[patch.be32]]
         address = 0x89480E7C
-        value = 0x7D8903A6
+        value = 0x81610138
     [[patch.be32]]
         address = 0x89480E80
-        value = 0x4E800421
+        value = 0x91610068
     [[patch.be32]]
         address = 0x89480E84
-        value = 0xE8610070
-    [[patch.be32]]
-        address = 0x89480E88
-        value = 0xE8810078
-    [[patch.be32]]
-        address = 0x89480E8C
-        value = 0xE8A10080
-    [[patch.be32]]
-        address = 0x89480E90
-        value = 0xE8C10088
-    [[patch.be32]]
-        address = 0x89480E94
-        value = 0xE8E10090
-    [[patch.be32]]
-        address = 0x89480E98
-        value = 0xE9010098
-    [[patch.be32]]
-        address = 0x89480E9C
-        value = 0xE92100A0
-    [[patch.be32]]
-        address = 0x89480EA0
-        value = 0xE94100A8
-    [[patch.be32]]
-        address = 0x89480EA4
-        value = 0xC82100B8
-    [[patch.be32]]
-        address = 0x89480EA8
         value = 0x818100C0
     [[patch.be32]]
-        address = 0x89480EAC
+        address = 0x89480E88
         value = 0x7D8903A6
     [[patch.be32]]
+        address = 0x89480E8C
+        value = 0x4E800421
+    [[patch.be32]]
+        address = 0x89480E90
+        value = 0xE8610070
+    [[patch.be32]]
+        address = 0x89480E94
+        value = 0xE8810078
+    [[patch.be32]]
+        address = 0x89480E98
+        value = 0xE8A10080
+    [[patch.be32]]
+        address = 0x89480E9C
+        value = 0xE8C10088
+    [[patch.be32]]
+        address = 0x89480EA0
+        value = 0xE8E10090
+    [[patch.be32]]
+        address = 0x89480EA4
+        value = 0xE9010098
+    [[patch.be32]]
+        address = 0x89480EA8
+        value = 0xE92100A0
+    [[patch.be32]]
+        address = 0x89480EAC
+        value = 0xE94100A8
+    [[patch.be32]]
         address = 0x89480EB0
-        value = 0xE80100B0
+        value = 0xC82100B8
     [[patch.be32]]
         address = 0x89480EB4
-        value = 0x7C0803A6
+        value = 0x818100C0
     [[patch.be32]]
         address = 0x89480EB8
-        value = 0x382100D0
+        value = 0x7D8903A6
     [[patch.be32]]
         address = 0x89480EBC
+        value = 0xE80100B0
+    [[patch.be32]]
+        address = 0x89480EC0
+        value = 0x7C0803A6
+    [[patch.be32]]
+        address = 0x89480EC4
+        value = 0x382100D0
+    [[patch.be32]]
+        address = 0x89480EC8
         value = 0x4E800420
 
 [[patch]]

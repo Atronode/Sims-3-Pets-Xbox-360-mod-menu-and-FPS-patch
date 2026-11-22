@@ -17,6 +17,16 @@ Press B to go back or close it. If there are too many options, push the stick up
 
 If several things are close together, the menu opens on the first one, which is usually the Sim.
 
+RELATIONSHIPS
+On a Sim, Relationships holds every relationship type: friendship, rivalry, romance and family. Pick one, tick
+as many Sims as you like in the list, then press X: each of them gets that relationship with the Sim you clicked.
+The game's own romance rules still apply: no children, teens only with teens, and no relatives.
+
+EMPTY HOUSES
+Point at an empty house (a furnished home nobody lives in), or at its yard, to move randomly made Sims in:
+one Sim, a married couple, or a family. Fill Every Empty House puts one Sim in every empty house in town.
+Each new household starts with 20,000 Simoleons.
+
 FRAME RATE (60 FPS PATCH)
 The game normally runs at up to 30 frames per second.
 1. Close Xenia.
@@ -36,6 +46,8 @@ OUTFITS: Smart screen copies also makes each of those copies twice. That works a
 patches of other textures in Sims' clothes, hair, hats and jewellery after Create a Sim. An outfit saved while
 broken stays broken in that save: pick Edit in CAS on that Sim in the mod menu, choose Done, then save, and the
 outfits are built again.
+HOUSEHOLD PICTURES: it also stops the family picture on the save menu and in household creation coming out as
+speckled outlines. The game makes that picture again every time you save, so one save replaces a broken one.
 PETS: the same patch file also carries "Pets look right", a fix in the game's own code that keeps dogs and cats
 in shape at full speed, even with the whole town gathered round. Without it, pets showed holes and spikes, and in
 a crowd their meshes stretched across the map. If a pet ever still looks wrong on your PC, press 6 for Pet safe
@@ -54,7 +66,8 @@ is in front and closes with the game. If the first number stays well below the s
 
 GOOD TO KNOW
 Nothing here changes your game file or Xenia's own files. The menu only exists while this launcher has the game running.
-Some options change your save for good once you save (Die By, Bulldoze, Move Household Out, Delete It).
+Some options change your save for good once you save (Die By, Bulldoze, Move Household Out, Delete It,
+the relationship options and the move-in options).
 Developer Tools are the game's unfinished test options, so a few may do nothing or misbehave.
 
 The full option list and the Xenia fixes are in the README on the project page.

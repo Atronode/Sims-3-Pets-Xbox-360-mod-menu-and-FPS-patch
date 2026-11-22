@@ -4,7 +4,7 @@ This project aims to be the definitive way to play **The Sims 3 Pets** for Xbox 
 
 - **Bug fixes:** settings that stop the crashes, the garbled portraits and textures, the "Graphics device lost" error and the stray pet shadows.
 - **60 FPS:** a patch that lifts the game's 30 FPS limit, and **Smart screen copies**, which let ordinary PCs actually reach 60 without breaking Sim portraits, outfits or pets. An optional on-screen FPS counter shows what you're getting.
-- **Mod menu:** hold LT and press A on any Sim, pet, object or patch of ground. Edit or take over any Sim, play any household, warp the town around, make Sims and pets, unlock every karma power, and reach the game's hidden developer tools.
+- **Mod menu:** hold LT and press A on any Sim, pet, object or patch of ground. Edit or take over any Sim, set any relationship between any Sims in town, play any household, move randomly made Sims into empty houses, warp the town around, make Sims and pets, unlock every karma power, and reach the game's hidden developer tools.
 
 You need your own copy of the game. No game files are included here.
 
@@ -34,6 +34,7 @@ So I set out to fix it, for myself and for anyone else who grew up with it. Each
 | Updated | 16 November 2026: 60 FPS patch, Smart screen copies and the FPS counter |
 | Updated | 17 November 2026: Pets look right, a fix in the game's own code that keeps dogs and cats in shape at full speed, even in a crowd; Pet safe mode in the `.bat` as a fallback |
 | Updated | 21 November 2026: Smart screen copies works around a Xenia bug that left patches of other textures in Sims' outfits after Create a Sim; it also waits longer for its helper, and the launcher keeps it up to date |
+| Updated | 22 November 2026: Smart screen copies also fixes the broken household pictures on the save menu and in household creation; the mod menu gets a Relationships folder with a Sim picker, options to move random Sims into empty houses, and Add 10,000 Lifetime Happiness |
 | Xenia Canary branch | [`canary_experimental`](https://github.com/xenia-canary/xenia-canary/tree/canary_experimental) |
 | Xenia Canary commit | [`cf206a3bd`](https://github.com/xenia-canary/xenia-canary/releases/tag/cf206a3) |
 | Build date in Xenia's log | Nov 8 2026 |
@@ -83,7 +84,6 @@ On 13 November 2026, after testers hit "Graphics device lost", both renderers we
 
 - **The game's own bugs.** The Sims 3 Pets was buggy even on a real Xbox 360, and those bugs are still there. Some problems may remain that neither Xenia nor this project causes. If you find one, please [report it](#suggestions-and-bug-reports).
 - **TVs sometimes freeze.** Sometimes a TV plays no sound, and its picture can freeze. This happens on a real Xbox 360 too, so it's a bug in the game itself, not in Xenia or this project.
-- **Broken household pictures.** The family picture on the save menu and in household creation can come out broken: instead of the Sims, it shows speckled green outlines of them with black patches. It may have started with the recent fixes, possibly linked to the outfit damage, but the cause hasn't been found yet and it isn't fixed.
 - **No shadows under Sims and pets indoors.** On the real console, Sims and pets have a soft shadow under them. Xenia's Vulkan renderer doesn't draw it, and Direct3D 12 draws a misplaced blob for pets instead. The `fsi` render path and the `depth_float24_convert_in_pixel_shader` and `depth_float24_round` settings were tried and none brought it back. This is the next bug I aim to fix; see [What's next](#whats-next).
 
 ### Related reports
@@ -162,7 +162,7 @@ Good to know:
 
 Every screen copy in the game goes through the Direct3D function `D3DDevice_Resolve`. Counting calls at each copy call site showed which ones run every frame for the normal scene and which only run for portraits, thumbnails, save pictures and screenshots. One of them belongs to the game's `ThumbnailRenderer`.
 
-The patch ([`Smart screen copies.toml`](mod-menu/fps-patch)) sends the 13 rare call sites through a short stub. The stub writes a request into spare memory at the end of the game's data section. It then waits until the launcher's helper ([`SmartReadback.ps1`](mod-menu/SmartReadback.ps1)) has switched Xenia's readback on, which normally takes a millisecond or two. The helper runs at high priority and asks Windows not to slow it down in the background. If the helper has stopped, the game gives up after about 1.3 seconds, once, and stops asking until the helper is back. An earlier version gave up after about 60 ms, which was too short whenever Windows held the helper back for a moment: the copy was then made with readback off, and garbage could end up in a portrait, a save picture or an outfit.
+The patch ([`Smart screen copies.toml`](mod-menu/fps-patch)) sends the 13 rare call sites, and 4 more that only run while a [household picture](#household-pictures) is made, through a short stub. The stub writes a request into spare memory at the end of the game's data section. It then waits until the launcher's helper ([`SmartReadback.ps1`](mod-menu/SmartReadback.ps1)) has switched Xenia's readback on, which normally takes a millisecond or two. The helper runs at high priority and asks Windows not to slow it down in the background. If the helper has stopped, the game gives up after about 1.3 seconds, once, and stops asking until the helper is back. An earlier version gave up after about 60 ms, which was too short whenever Windows held the helper back for a moment: the copy was then made with readback off, and garbage could end up in a portrait, a save picture or an outfit.
 
 The stub then makes the copy twice; [Sims' outfits](#sims-outfits) explains why.
 
@@ -191,6 +191,21 @@ Before this fix, a Sim's outfit could come out of Create a Sim with patches of o
 Patchy clothes after a pregnancy are probably the same bug, since the game builds new outfits then, but that case wasn't tested on its own.
 
 **If a save already has damaged outfits.** The damage stays in that save until the outfit is built again. Pick **Edit in CAS** on the Sim in the mod menu, choose Done, then save. The game builds that Sim's outfits and portrait again.
+
+### Household pictures
+
+Before this fix, the family picture shown on the save menu and in household creation could come out broken. Instead of the Sims, it showed speckled green outlines of them with black patches, or the Sims crossed by white bands.
+
+| Test PC, `fbo` render path: the same save, saved over several times in a row | Household pictures broken |
+|---|---|
+| Before the fix | 6 of 11, over two test runs |
+| With the fix | 0 of 8, each identical to the clean picture |
+
+**Why it happened.** The game makes a household picture in five copies from the graphics card. The first one was already one of Smart screen copies' rare sites. The other four go through a short entry to the game's copy function that the rare sites didn't cover, so they were made only once. That left them open to the same Xenia bug as the [outfits](#sims-outfits).
+
+**The fix.** Those four copies are now rare sites too: readback is switched on for them and each one is made twice. They only run while a household picture is made, when you save or finish a household in Create a Sim, so ordinary frames don't change.
+
+**If a save already has a broken picture.** The game makes the picture again every time you save, so saving once with this version replaces it.
 
 ### Pets look right
 
@@ -275,13 +290,13 @@ Taken in Xenia on a copy of the saves, with the mod menu installed.
 
 ![The mod menu open on the Grim Reaper](images/sim-menu.png)
 
-Hold **LT** and press **A** on a Sim, here the Grim Reaper. The menu lists Warp To Me, Warp Me To Them, Play As This Sim, Add To My Household, Edit in CAS, Set Relationship, Add or Increment Skill, Set Motive and Needs. The round orange icon marks an option added by this mod. Plain pills such as Set Relationship are the game's own hidden debug options, which the mod now brings up in the normal menu. This means any Sim, even one you can't normally control, can be edited, moved or taken over from here. The funds in the corner show §20,000 after using the Money options.
+Hold **LT** and press **A** on a Sim, here the Grim Reaper. The menu lists Warp To Me, Warp Me To Them, Play As This Sim, Add To My Household, Edit in CAS, Set Relationship, Add or Increment Skill, Set Motive and Needs. The round orange icon marks an option added by this mod. Plain pills such as Set Relationship are the game's own hidden debug options, which the mod now brings up in the normal menu. This means any Sim, even one you can't normally control, can be edited, moved or taken over from here. The funds in the corner show §20,000 after using the Money options. This screenshot is from before the [Relationships](#relationships) folder replaced Set Relationship.
 
 #### The ground menu
 
 ![The mod menu open on a patch of ground](images/ground-menu.png)
 
-The same gesture on empty ground gives world options: Warp Me Here, Warp My Household Here and Summon The Town Here (every Sim in town walks up to that spot), plus Make Sim, Make Death, Make Pet, Make Breed, Build Or Buy On This Lot and Move Household Out. This is how you move around the world, create Sims and pets, or change a lot without leaving the game.
+The same gesture on empty ground gives world options: Warp Me Here, Warp My Household Here and Summon The Town Here (every Sim in town walks up to that spot), plus Make Sim, Make Death, Make Pet, Make Breed, Build Or Buy On This Lot and Move Household Out. This is how you move around the world, create Sims and pets, or change a lot without leaving the game. In the yard of an [empty house](#empty-houses), the menu also offers ways to move new Sims in.
 
 #### Karma powers, all unlocked
 
@@ -332,16 +347,37 @@ Hold **LT** and press **A** while pointing at a Sim, a pet, the ground or an obj
 
 | Pointing at | Options |
 |---|---|
-| A Sim | Warp To Me, Warp Me To Them, Play As This Sim, Add To My Household, Edit in CAS, Set Relationship, Add or Increment Skill, Set Motive, Needs, Age, Traits & Wishes, Career, Family, Die By, Force Reset, Money, Time |
+| A Sim | Warp To Me, Warp Me To Them, Play As This Sim, Add To My Household, Edit in CAS, Relationships, Add or Increment Skill, Set Motive, Needs, Age, Traits & Wishes, Career, Family, Die By, Force Reset, Money, Time |
+| Relationships | Stranger; Friendship (Acquaintance, Distant Friend, Friend, Good Friend, Best Friend, Best Friends Forever, Old Friend); Rivalry (Disliked, Enemy, Old Enemies); Romance (Romantic Interest, Partner, Fiancee, Spouse, Ex, Ex Spouse); Family (Parents, Children, Siblings) |
 | Age | Age Up, Age Down (one life stage younger, as far as toddler; pets go elder, adult, then young), Age Up Tomorrow |
-| Traits & Wishes | Change Traits (the game's own trait picker), Add Random Trait, Complete Lifetime Wish |
-| The ground | Warp Me Here, Warp My Household Here, Summon The Town Here, Make Sim, Make Pet, Make Breed, Add Fire, Add Puddle, Add Trash Pile, Build Or Buy On This Lot, Move Household Out, Bulldoze This Lot, Spawn Rocks And Gems, Money, Time |
+| Traits & Wishes | Change Traits (the game's own trait picker), Add Random Trait, Complete Lifetime Wish, Add 10,000 Lifetime Happiness |
+| The ground | Warp Me Here, Warp My Household Here, Summon The Town Here, Make Sim, Make Pet, Make Breed, Add Fire, Add Puddle, Add Trash Pile, Build Or Buy On This Lot, Move Household Out, Bulldoze This Lot, Spawn Rocks And Gems, Money, Time. In the yard of an empty house, also the four move-in options below |
 | An object | Clone, Delete It, Add To Family Inventory |
-| A house on the map | Play This Household, Repair All Objects, Move Household In or Out, Add To Household |
+| A house (point at it, or pick it on the Town Map) | Play This Household (when someone lives there), Repair All Objects, Move Household In or Out, Add To Household. On an empty house, also Move In A Random Sim, Move In A Random Couple, Move In A Random Family and Fill Every Empty House |
 | A mailbox | AutoPay Bills, Make Everything Unbreakable, Unlock All Lots, Relics, Mystery Rewards and Challenges |
 | Anything | Developer Tools, which holds all the game's leftover test options |
 
-Some options change your save for good once you save, such as Die By, Bulldoze, Move Household Out and Delete It. Back up your saves first. Developer Tools are the game's unfinished test options, so a few may do nothing or misbehave.
+Some options change your save for good once you save, such as Die By, Bulldoze, Move Household Out, Delete It, the relationship options and the move-in options. Back up your saves first. Developer Tools are the game's unfinished test options, so a few may do nothing or misbehave.
+
+#### Relationships
+
+Pick a relationship and a list of every Sim in town opens. Tick as many Sims as you like and press **X**: each of them gets that relationship with the Sim you clicked. (The game's own Set Relationship, which this replaces, only linked the clicked Sim with the Sim you control.)
+
+- The game's own rules still apply to Romance. It's refused for a child or younger, between a teen and an adult, between Sims of different species, and between blood relatives or step-relatives. Pets get Stranger, Friendship and Rivalry only, and they aren't listed for Romance or Family.
+- Spouse also marries the two Sims in the family tree. Partner, Fiancee and Spouse end any other Partner, Fiancee or Spouse either Sim had: a previous spouse becomes an Ex Spouse, and the others an Ex.
+- Parents, Children and Siblings set the family tree, and the new relative shows in the relationships panel straight away.
+- The icons in the list show each Sim's relationship with the Sim you're playing, not with the Sim you clicked.
+
+#### Empty houses
+
+An empty house is a furnished home with nobody living in it. Point at the house itself or at its yard to get these options.
+
+- **Move In A Random Sim:** one young adult or adult.
+- **Move In A Random Couple:** a man and a woman, married, sharing his surname.
+- **Move In A Random Family:** a couple with one to three toddlers, children or teens as their children.
+- **Fill Every Empty House:** one random Sim in every empty house in town.
+
+The game's own random Sim maker makes each Sim, with random looks, traits and name. Each new household is named after its surname and starts with §20,000. A couple or family already know each other, the way the game's own new households start. A household moved in this way may not show an icon on the Town Map at first. Pointing at the house in live mode always works.
 
 ### What has been tested
 
@@ -352,12 +388,17 @@ All testing used copies of the saves.
 | Menus on a Sim, a pet and the ground | Play As on a Sim from a different family |
 | Developer Tools folder | Age Down at stages other than adult to young adult |
 | Warp Me Here, Warp My Household Here, Summon The Town Here | Add Random Trait, Complete Lifetime Wish |
-| Money, Time | Career and Family options |
+| Money, Time | Career options, and the Family folder (Get Pregnant, Have Baby) |
 | Play As on a Sim in the same household | Add To My Household |
-| Karma powers unlocking | House and mailbox menus |
-| Age Up, Age Down from adult to young adult | Clone and Delete It |
-| Change Traits opening and selecting a trait | Going below young adult with Age Down, which leaves adult jobs and partners in place |
-| Make Pet (cats and dogs) | |
+| Karma powers unlocking | Mailbox menu |
+| Age Up, Age Down from adult to young adult | Repair All Objects and Add To Household on a house |
+| Change Traits opening and selecting a trait | Clone and Delete It |
+| Make Pet (cats and dogs), Make Sim (a child) | Going below young adult with Age Down, which leaves adult jobs and partners in place |
+| Relationships: Best Friend, Children, Spouse for a Sim who was already married, Ex Spouse, and Romance refused for a child | The other relationship types |
+| Move In A Random Sim, Couple and Family, from the house and from its yard | Fill Every Empty House with more than one empty house |
+| Fill Every Empty House on one empty house | |
+| Play This Household on other households, Move Household Out | |
+| Add 10,000 Lifetime Happiness | |
 | Menu and karma unlock after quitting to the main menu and loading again | |
 | All of the above on the Vulkan renderer | |
 
